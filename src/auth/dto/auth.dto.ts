@@ -42,7 +42,7 @@ export class RegisterDTO {
 
 export class LogInDTO {
   @IsNotEmpty()
-  @IsNumber()
+  @IsString()
   @IsPhoneNumber('VN')
   phoneNumber: string;
 
