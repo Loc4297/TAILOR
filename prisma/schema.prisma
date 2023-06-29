@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model User {
+  id          Int   @id @default(autoincrement())
+  name        String
+  phoneNumber String   @unique
+  password    String
+  role        Role?    @default(USER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Order       Order[]
+
+  @@map("users")
+}
+
+model Order {
+  id            Int        @id @default(autoincrement())
+  userId        Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deadline      DateTime
+  note          String
+  user          User          @relation(fields: [userId], references: [id])
+  orderStatus   OrderStatus   @default(DRAFT)
+  paymentStatus PaymentStatus @default(PENDING)
+  items         Item[]
+  // suits     SuitInOrder[]
+  // trousers  TrouserInOrder[]
+}
+
+model Item {
+  id        Int   @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  quantity  Int   @default(0)
+  itemInfor Json
+  type      ItemType @default(SUIT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// model SuitInOrder {
+//   suitId   Int
+//   orderId  Int
+//   quantity Int
+//   order    Order @relation(fields: [orderId], references: [id])
+//   suits    Suit  @relation(fields: [suitId], references: [id])
+
+//   @@id([suitId, orderId])
+//   @@map("suitInOrder")
+// }
+
+// model TrouserInOrder {
+//   trouserId Int
+//   orderId   Int
+//   quantity  Int
+//   order     Order   @relation(fields: [orderId], references: [id])
+//   trousers  Trouser @relation(fields: [trouserId], references: [id])
+
+//   @@id([trouserId, orderId])
+//   @@map("trouserInOrder")
+// }
+
+// model Suit {
+//   id           Int           @id @default(autoincrement())
+//   shoulder     Float
+//   longShirt    Float
+//   calfArm      Float
+//   neck         Float
+//   gile         Float
+//   chestType    Chest         @default(T)
+//   downShoulder Float
+//   longArm      Float
+//   withinArmpit Float
+//   chest        Float
+//   butt         Float
+//   handDoor     Float
+//   lowerWaist   Float
+//   SuitInOrder  SuitInOrder[]
+// }
+
+// model Trouser {
+//   id             Int              @id @default(autoincrement())
+//   belly          Float
+//   femoral        Float
+//   pipe           Float
+//   bottom         Float
+//   butt           Float
+//   knee           Float
+//   longTrouser    Float
+//   calfLeg        Float
+//   TrouserInOrder TrouserInOrder[]
+// }
+
+enum Chest {
+  T
+  S
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  DRAFT
+  IN_PROCESSING
+  COMPELETED
+  DELIVERED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAY
+}
+
+enum ItemType {
+  SUIT
+  SHIRT
+  TROUSER
+}
